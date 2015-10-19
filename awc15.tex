@@ -1,14 +1,45 @@
 \documentclass{beamer}
 \usepackage{graphicx}
 
-\usetheme{Frankfurt}
-\setbeamertemplate{navigation symbols}{}
+\definecolor{uoanavy}{RGB}{0,60,127}
 
-\title[HMC]{Implementing Hamiltonian Monte Carlo for Efficient Bayesian Evolutionary Analysis}
+\usetheme{Frankfurt}
+\usecolortheme{orchid}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{structure}{fg=uoanavy}
+
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=newest,
+             jitter/.style={
+                 x filter/.code={\pgfmathparse{\pgfmathresult+rnd*#1-#1/2}}
+             },
+             jitter/.default=0,
+             select coords between index/.style 2 args={
+                 x filter/.code={
+                     \ifnum\coordindex<#1\def\pgfmathresult{}\fi
+                     \ifnum\coordindex>#2\def\pgfmathresult{}\fi
+                 }
+             }
+ }
+
+\usepackage{doi}
+
+% \usepackage{enumitem}
+% \setlist[itemize]{label=$\triangleright$}
+
+\title{Implementing Hamiltonian Monte Carlo for Efficient Bayesian Evolutionary Analysis}
 \author{Arman Bilge}
 
 \institute{Computational Evolution Group \\ The University of Auckland}
 \date{21 October 2015}
+
+\usepackage{mathtools}
+\newcommand{\dd}{\, \mathrm{d}}
+\renewcommand{\vec}[1]{\ensuremath{\boldsymbol{\mathbf{#1}}}}
+\newcommand{\mat}[1]{\ensuremath{\boldsymbol{\mathbf{#1}}}}
+\newcommand{\op}[1]{\ensuremath{\boldsymbol{\mathbf{#1}}}}
+\newcommand{\norm}[1]{\ensuremath{\mathcal{N}\left(#1\right)}}
 
 \begin{document}
 
@@ -16,24 +47,145 @@
 
     \section{Introduction}
 
-    \subsection{Subsection}
+    \stepcounter{subsection}
+    \begin{frame}{Motivation}
+
+        \begin{itemize}
+
+            \item Bayesian statistics has transformed evolutionary biology
+            \begin{itemize}
+                \item Divergence dating
+            \end{itemize}
+
+        \end{itemize}
+
+    \end{frame}
+
+    \stepcounter{subsection}
+    \begin{frame}{Bayesian Evolutionary Analysis}
+    \end{frame}
+
+    \stepcounter{subsection}
     \begin{frame}{Hamiltonian Dynamics}
+        \begin{columns}
+            \begin{column}{.5\textwidth}
+                \begin{definition}
+                    Let
+                    \small
+                    \begin{itemize}
+                        \item $\vec{q}$ be the skier's position
+                        \item $\vec{v}$ be their velocity
+                        \item $\mat{M}$ be their mass
+                        \item $U\left(\vec{q}\right)$ be their potential energy
+                        \item $K\left(\vec{p}\right)$ be their kinetic energy
+                    \end{itemize}
+
+                    \normalsize
+                    Then the Hamiltonian $\mathcal{H}$ is
+                    \begin{equation*}
+                        \mathcal{H}\left(\vec{q},\vec{p}\right) = U\left(\vec{q}\right) + K\left(\vec{p}\right)
+                    \end{equation*}
+                \end{definition}
+            \end{column}
+            \begin{column}{.5\textwidth}
+
+            \end{column}
+        \end{columns}
+    \end{frame}
+
+    \section{Methods}
+
+    \stepcounter{subsection}
+    \begin{frame}{Hamiltonian Monte Carlo}
+    \end{frame}
+
+    \stepcounter{subsection}
+    \begin{frame}{Hamiltonian Monte Carlo}
+    \end{frame}
+
+    \stepcounter{subsection}
+    \begin{frame}{Hamiltonian Monte Carlo}
+
+        \textbf{Running a physics simulator seems like a lot of work! \\ Why should we bother?}
+
+        \begin{theorem}[Creutz 1988]
+            Consider a model with $n$ variables. \\
+            Then (under simplifying assumptions) the computation time is
+            \begin{itemize}
+                \item $\mathcal{O}\left(n^2\right)$ for MCMC; and
+                \item $\mathcal{O}\left(n^\frac{5}{4}\right)$ for HMC.
+            \end{itemize}
+        \end{theorem}
+
+        In practice this means \textbf{doubling the model complexity} increases computation time by
+        \begin{itemize}
+            \item \textbf{4x} for MCMC
+            \item \textbf{$<$2.5x} for HMC!
+        \end{itemize}
 
     \end{frame}
 
     \section{Results}
 
+    \stepcounter{subsection}
+    \begin{frame}{A Phylogenetic Hamiltonian}
+    \end{frame}
+
+    \stepcounter{subsection}
+    \begin{frame}{Performance of HMC vs. MCMC}
+
+        For $\left\{8,16,32,64\right\}$ taxa:
+
+        \begin{itemize}
+            \item Simulated 100 datasets under Yule and HKY models
+            \item Estimated node heights with optimally-tuned HMC and MCMC
+            \item Measured efficiency as effective sample size of tree length per unit time
+            \item ESS = number of independent samples
+        \end{itemize}
+
+    \end{frame}
+
+    \stepcounter{subsection}
+    \begin{frame}{Performance of HMC vs. MCMC}
+        \centering
+        \begin{tikzpicture}
+            \begin{semilogxaxis}[width=0.9\textwidth,
+                                 xtick={8,16,32,64},
+                                 ytick={1,4,8,...,20},
+                                 extra y ticks=1,
+                                 extra y tick labels=,
+                                 extra y tick style={ grid=major, major grid style={thick} },
+                                 log ticks with fixed point,
+                                 xlabel=Number of Taxa,
+                                 ylabel=Relative Efficiency of HMC,
+                                 clip mode=individual
+                         ]
+                \addplot+[uoanavy, only marks, mark size=1, mark options={fill=uoanavy}, jitter=0.25] table {performance.dat};
+                \draw[red, thick] (7, 4.21355) -- (9.14285714285714, 4.21355);
+                \draw[red, thick] (14, 4.776769) -- (18.28571, 4.776769);
+                \draw[red, thick] (28, 5.342736) -- (36.57143, 5.342736);
+                \draw[red, thick] (56, 5.547638) -- (73.14286, 5.547638);
+            \end{semilogxaxis}
+        \end{tikzpicture}
+    \end{frame}
+
     \section{Conclusion}
 
+    \stepcounter{subsection}
     \begin{frame}{Acknowledgements}
-        \begin{itemize}
-            \item Tim Vaughan and Alexei J. Drummond
+        \begin{block}{Thanks to}
             \begin{itemize}
+                \item Tim Vaughan and Alexei Drummond
                 \item Members of the Computational Evolution Group
+                \item Allan Wilson Centre Summer Scholarship
+                \item New Zealand eScience Infrastructure
             \end{itemize}
-            \item Allan Wilson Centre Summer Scholarship
-            \item New Zealand eScience Infrastructure
-        \end{itemize}
+        \end{block}
+        \begin{block}{References}
+            \footnotesize
+            M Creutz. \textit{Physical Review D} 38.4 (1988). \texttt{\doi{10.1103/PhysRevD.38.1228}} \\
+            RM Neal. \textit{Handbook of Markov Chain Monte Carlo} (2011).
+        \end{block}
     \end{frame}
 
 \end{document}

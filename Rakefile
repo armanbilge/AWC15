@@ -9,7 +9,7 @@ NAV = TEX.ext('nav')
 OUT = TEX.ext('out')
 PDF = TEX.ext('pdf')
 SNM = TEX.ext('snm')
-TOC = TOC.ext('toc')
+TOC = TEX.ext('toc')
 
 CLEAN << AUX
 CLEAN << LOG
