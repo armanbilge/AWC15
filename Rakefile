@@ -23,6 +23,6 @@ task :default => PDF
 
 rule '.pdf' => '.tex' do |t|
   2.times do
-    sh "#{PDFLATEX} #{t.name.pathmap('%n')}"
+    sh "#{PDFLATEX} -shell-escape #{t.name.pathmap('%n')}"
   end
 end
